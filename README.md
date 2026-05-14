@@ -6,7 +6,7 @@
 
 ---
 
-## Project Description
+## About Project
 
 For this project I built a food ordering web application called Rith's Bistro. The idea is that restaurant staff can use this app to keep track of customers, manage the food menu, and handle orders all in one place.
 
