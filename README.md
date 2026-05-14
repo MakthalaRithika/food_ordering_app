@@ -72,7 +72,37 @@ Then open the browser and go to http://127.0.0.1:5000
 To stop the app press Ctrl + C in the terminal.
 
 ---
+## How to Run This Project
 
+** If the GitHub link does not work, please download the ZIP file submitted along with this report and follow the setup instructions below to run the app locally.
+
+**Step 1 — Download the project:**
+git clone https://github.com/MakthalaRithika/food_ordering_app.git
+cd food_ordering_app
+
+**Step 2 — Create virtual environment:**
+
+Windows:
+python -m venv venv
+venv\Scripts\activate
+
+Mac/Linux:
+python3 -m venv venv
+source venv/bin/activate
+
+**Step 3 — Install dependencies:**
+pip install -r requirements.txt
+
+**Step 4 — If you get a SQLAlchemy error, upgrade it:**
+pip install --upgrade sqlalchemy flask-sqlalchemy
+
+**Step 5 — Run the app:**
+python app.py
+
+**Step 6 — Open browser and go to:**
+http://127.0.0.1:5000
+
+---
 ## How to Use the App
 
 **Dashboard** - shows a summary of all data including total revenue and top selling items.
