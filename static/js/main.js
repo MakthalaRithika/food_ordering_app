@@ -1,4 +1,4 @@
-// ForkFlow — main.js
+// Riths Bistro — main.js
 
 // Sidebar toggle (mobile)
 const sidebarToggle = document.getElementById('sidebarToggle');
