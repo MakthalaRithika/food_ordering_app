@@ -1,15 +1,12 @@
 # AI Assistance Log
 
-**CS665 · Project 3**  
-Student: Makthala Rithika
-
 This file documents all instances of Generative AI assistance used during the development of this project, in compliance with the course AI policy.
 
 ---
 
 ## Entry 1
 
-**Tool:** Claude (Anthropic - claude.ai)
+**Tool:** ChatGPT
 
 **Prompt:** Can you help me paraphrase my normalization report to make it sound more clear?
 
@@ -21,7 +18,7 @@ This file documents all instances of Generative AI assistance used during the de
 
 ## Entry 2
 
-**Tool:** Claude (Anthropic - claude.ai)
+**Tool:** Claude 
 
 **Prompt:** I needed help understanding certain parts of the Flask code such as routes, SQLAlchemy models, and Jinja2 templates.
 
@@ -43,16 +40,3 @@ This file documents all instances of Generative AI assistance used during the de
 
 ---
 
-## Entry 4
-
-**Tool:** Claude (Anthropic — claude.ai)
-
-**Prompt:**
-"Review the normalization steps. Is removing total_amount from Orders correct for 3NF, or is it a different issue?"
-
-**AI Output Summary:**
-The AI clarified that `total_amount` is not strictly a 3NF violation in the formal sense (it is not a transitive dependency between non-key attributes), but rather a **derived attribute** — a value computable from related tables. Storing it violates the principle of avoiding redundant data and creates update/insertion/deletion anomalies as described. The AI recommended removing it and computing it dynamically, which aligns with good relational design practice even if it is not a textbook 3NF decomposition.
-
-**My Modifications and Verification:**
-- Added a clarifying note in `NORMALIZATION.md` under Anomaly 3 to accurately describe this as a derived-value anomaly rather than a strict transitive dependency
-- Confirmed the distinction is honest and correct for the project documentation
