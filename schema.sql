@@ -1,6 +1,5 @@
 -- ══════════════════════════════════════════
--- ForkFlow Food Ordering System
--- Final 3NF Schema — CS665 Project 3
+-- Riths Bistro Food Ordering System
 -- ══════════════════════════════════════════
 
 -- Drop existing tables (child → parent order)
