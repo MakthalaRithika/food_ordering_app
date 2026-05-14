@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Customers{% endblock %}
+{% block page_title %}Customers{% endblock %}
+
+{% block topbar_action %}
+  <a href="{{ url_for('add_customer') }}" class="btn-accent">
+    <i class="bi bi-person-plus-fill"></i> Add Customer
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header"><i class="bi bi-people-fill me-2"></i>All Customers ({{ customers|length }})</div>
+  <div class="card-body p-0">
+    {% if customers %}
+    <table class="table-dark-custom">
+      <thead>
+        <tr>
+          <th>ID</th><th>Name</th><th>Email</th><th>Member Since</th><th>Orders</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in customers %}
+        <tr>
+          <td style="color:var(--muted);">{{ c.customer_id }}</td>
+          <td>
+            <a href="{{ url_for('customer_detail', cid=c.customer_id) }}" style="color:var(--text);text-decoration:none;font-weight:500;">
+              {{ c.name }}
+            </a>
+          </td>
+          <td style="color:var(--muted);">{{ c.email }}</td>
+          <td style="color:var(--muted);">{{ c.date_created }}</td>
+          <td>
+            <span style="font-family:var(--font-head);font-weight:700;color:var(--accent);">{{ c.orders|length }}</span>
+          </td>
+          <td>
+            <a href="{{ url_for('edit_customer', cid=c.customer_id) }}" class="btn-edit-sm me-1">
+              <i class="bi bi-pencil"></i> Edit
+            </a>
+            <form method="POST" action="{{ url_for('delete_customer', cid=c.customer_id) }}" style="display:inline;"
+                  onsubmit="return confirm('Delete {{ c.name }}? This will also delete all their orders.')">
+              <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i> Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div style="padding:40px;text-align:center;color:var(--muted);">
+        <i class="bi bi-people" style="font-size:40px;display:block;margin-bottom:12px;"></i>
+        No customers yet. <a href="{{ url_for('add_customer') }}" style="color:var(--accent);">Add the first one!</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

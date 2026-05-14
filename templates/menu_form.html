@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Menu Item{% endblock %}
+{% block page_title %}{{ action }} Menu Item{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('menu') }}" class="btn-ghost mb-4"><i class="bi bi-arrow-left"></i> Back to Menu</a>
+
+<div class="form-card">
+  <h2 style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:22px;">
+    {{ action }} Menu Item
+  </h2>
+  <form method="POST">
+    <div class="form-group">
+      <label class="form-label">Item Name *</label>
+      <input type="text" name="item_name" class="form-control"
+             value="{{ item.item_name if item else '' }}"
+             placeholder="e.g. Margherita Pizza" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Price ($) *</label>
+      <input type="number" name="price" class="form-control" step="0.01" min="0.01"
+             value="{{ item.price if item else '' }}"
+             placeholder="e.g. 8.99" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category *</label>
+      <select name="category_id" class="form-select" required>
+        <option value="">Select category…</option>
+        {% for cat in categories %}
+          <option value="{{ cat.category_id }}"
+            {% if item and item.category_id == cat.category_id %}selected{% endif %}>
+            {{ cat.category_name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    {% if action == 'Edit' %}
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:10px;cursor:pointer;">
+        <input type="checkbox" name="available" {% if item.available %}checked{% endif %}
+               style="width:16px;height:16px;accent-color:var(--accent);">
+        <span class="form-label" style="margin:0;">Available for ordering</span>
+      </label>
+    </div>
+    {% endif %}
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button type="submit" class="btn-accent"><i class="bi bi-check-lg"></i> {{ action }} Item</button>
+      <a href="{{ url_for('menu') }}" class="btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

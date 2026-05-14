@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Menu{% endblock %}
+{% block page_title %}Menu{% endblock %}
+
+{% block topbar_action %}
+  <a href="{{ url_for('add_menu_item') }}" class="btn-accent">
+    <i class="bi bi-plus-lg"></i> Add Item
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header"><i class="bi bi-journal-richtext me-2"></i>Menu Items ({{ items|length }})</div>
+  <div class="card-body p-0">
+    {% if items %}
+    <table class="table-dark-custom">
+      <thead>
+        <tr><th>ID</th><th>Item</th><th>Category</th><th>Price</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td style="color:var(--muted);">{{ item.menu_id }}</td>
+          <td style="font-weight:500;">{{ item.item_name }}</td>
+          <td style="color:var(--muted);">{{ item.category_obj.category_name }}</td>
+          <td>
+            <span style="font-family:var(--font-head);font-weight:700;color:var(--accent);">${{ "%.2f"|format(item.price) }}</span>
+          </td>
+          <td>
+            {% if item.available %}
+              <span class="badge-status badge-available">Available</span>
+            {% else %}
+              <span class="badge-status badge-unavailable">Unavailable</span>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('edit_menu_item', mid=item.menu_id) }}" class="btn-edit-sm me-1">
+              <i class="bi bi-pencil"></i> Edit
+            </a>
+            <form method="POST" action="{{ url_for('delete_menu_item', mid=item.menu_id) }}" style="display:inline;"
+                  onsubmit="return confirm('Remove {{ item.item_name }} from the menu?')">
+              <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i> Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div style="padding:40px;text-align:center;color:var(--muted);">
+        <i class="bi bi-journal-x" style="font-size:40px;display:block;margin-bottom:12px;"></i>
+        Menu is empty. <a href="{{ url_for('add_menu_item') }}" style="color:var(--accent);">Add the first item!</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

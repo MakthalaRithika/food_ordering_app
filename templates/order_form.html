@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}New Order{% endblock %}
+{% block page_title %}New Order{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('orders') }}" class="btn-ghost mb-4"><i class="bi bi-arrow-left"></i> Back to Orders</a>
+
+<div style="display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start;">
+
+  <!-- Left: order builder -->
+  <div>
+    <div class="card mb-4">
+      <div class="card-header"><i class="bi bi-person-fill me-2"></i>Customer</div>
+      <div class="card-body">
+        <div class="form-group mb-0">
+          <label class="form-label">Select Customer *</label>
+          <select id="customerSelect" class="form-select">
+            <option value="">Choose a customer…</option>
+            {% for c in customers %}
+              <option value="{{ c.customer_id }}">{{ c.name }} — {{ c.email }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="bi bi-basket-fill me-2"></i>Add Items</div>
+      <div class="card-body">
+        <!-- Item picker -->
+        <div style="display:grid;grid-template-columns:1fr 120px auto;gap:10px;align-items:end;margin-bottom:16px;">
+          <div>
+            <label class="form-label">Menu Item</label>
+            <select id="itemPicker" class="form-select">
+              <option value="">Select item…</option>
+              {% for m in menu_items %}
+                <option value="{{ m.menu_id }}" data-price="{{ m.price }}" data-name="{{ m.item_name }}">
+                  {{ m.item_name }} — ${{ "%.2f"|format(m.price) }}
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Quantity</label>
+            <input type="number" id="qtyPicker" class="form-control" value="1" min="1" max="99">
+          </div>
+          <button type="button" onclick="addItem()" class="btn-accent" style="height:42px;">
+            <i class="bi bi-plus-lg"></i> Add
+          </button>
+        </div>
+
+        <!-- Order rows -->
+        <div id="orderRows"></div>
+
+        <!-- Total -->
+        <div class="order-total-bar">
+          <span class="order-total-label">ORDER TOTAL</span>
+          <span class="order-total-value" id="orderTotal">$0.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: submit -->
+  <div class="card" style="position:sticky;top:80px;">
+    <div class="card-header"><i class="bi bi-send-fill me-2"></i>Place Order</div>
+    <div class="card-body">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:16px;">
+        Review your order, then submit. The order and all items will be saved atomically in a single database transaction.
+      </p>
+      <div id="summaryBox" style="margin-bottom:16px;color:var(--muted);font-size:13px;">
+        No items added yet.
+      </div>
+      <form id="orderForm" method="POST" action="{{ url_for('new_order') }}">
+        <div id="hiddenFields"></div>
+        <button type="button" onclick="submitOrder()" class="btn-accent" style="width:100%;justify-content:center;padding:12px;">
+          <i class="bi bi-check-circle-fill me-1"></i> Place Order
+        </button>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const rows = [];
+
+function addItem() {
+  const picker = document.getElementById('itemPicker');
+  const qty    = parseInt(document.getElementById('qtyPicker').value) || 1;
+  const opt    = picker.options[picker.selectedIndex];
+  if (!opt.value) { alert('Please select a menu item.'); return; }
+  if (qty < 1)    { alert('Quantity must be at least 1.'); return; }
+
+  const mid   = opt.value;
+  const name  = opt.dataset.name;
+  const price = parseFloat(opt.dataset.price);
+
+  // Merge if same item exists
+  const existing = rows.find(r => r.mid === mid);
+  if (existing) {
+    existing.qty += qty;
+  } else {
+    rows.push({ mid, name, price, qty });
+  }
+  renderRows();
+}
+
+function removeRow(mid) {
+  const idx = rows.findIndex(r => r.mid === mid);
+  if (idx !== -1) rows.splice(idx, 1);
+  renderRows();
+}
+
+function renderRows() {
+  const container = document.getElementById('orderRows');
+  const summary   = document.getElementById('summaryBox');
+  let total = 0;
+
+  if (rows.length === 0) {
+    container.innerHTML = '';
+    summary.textContent = 'No items added yet.';
+    document.getElementById('orderTotal').textContent = '$0.00';
+    return;
+  }
+
+  container.innerHTML = rows.map(r => {
+    const sub = (r.price * r.qty).toFixed(2);
+    total += r.price * r.qty;
+    return `
+      <div class="order-item-row">
+        <div style="font-weight:500;">${r.name}</div>
+        <div>
+          <input type="number" min="1" max="99" value="${r.qty}"
+                 onchange="updateQty('${r.mid}', this.value)"
+                 class="form-control" style="padding:6px 10px!important;">
+        </div>
+        <div class="item-price-tag">$${sub}</div>
+        <button class="remove-item-btn" onclick="removeRow('${r.mid}')"><i class="bi bi-x-circle"></i></button>
+      </div>`;
+  }).join('');
+
+  document.getElementById('orderTotal').textContent = '$' + total.toFixed(2);
+  summary.innerHTML = rows.map(r => `<div style="display:flex;justify-content:space-between;padding:3px 0;">
+    <span>${r.name} ×${r.qty}</span><span style="color:var(--accent);">$${(r.price*r.qty).toFixed(2)}</span>
+  </div>`).join('') + `<hr style="border-color:var(--border);margin:8px 0;"><div style="display:flex;justify-content:space-between;font-weight:700;"><span>Total</span><span style="color:var(--accent);">$${total.toFixed(2)}</span></div>`;
+}
+
+function updateQty(mid, val) {
+  const q = parseInt(val);
+  if (isNaN(q) || q < 1) return;
+  const row = rows.find(r => r.mid === mid);
+  if (row) { row.qty = q; renderRows(); }
+}
+
+function submitOrder() {
+  const cid = document.getElementById('customerSelect').value;
+  if (!cid)          { alert('Please select a customer.'); return; }
+  if (rows.length === 0) { alert('Please add at least one item.'); return; }
+
+  const form   = document.getElementById('orderForm');
+  const hidden = document.getElementById('hiddenFields');
+  hidden.innerHTML = `<input type="hidden" name="customer_id" value="${cid}">`;
+  rows.forEach(r => {
+    hidden.innerHTML += `<input type="hidden" name="item_ids" value="${r.mid}">`;
+    hidden.innerHTML += `<input type="hidden" name="quantities" value="${r.qty}">`;
+  });
+  form.submit();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+
+{% block topbar_action %}
+  <a href="{{ url_for('new_order') }}" class="btn-accent">
+    <i class="bi bi-plus-lg"></i> New Order
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header"><i class="bi bi-receipt-cutoff me-2"></i>All Orders ({{ orders|length }})</div>
+  <div class="card-body p-0">
+    {% if orders %}
+    <table class="table-dark-custom">
+      <thead>
+        <tr><th>#</th><th>Customer</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for o in orders %}
+        <tr>
+          <td><a href="{{ url_for('order_detail', oid=o.order_id) }}" style="color:var(--accent);text-decoration:none;">#{{ o.order_id }}</a></td>
+          <td>{{ o.customer.name }}</td>
+          <td style="color:var(--muted);">{{ o.order_date }}</td>
+          <td style="color:var(--muted);">{{ o.order_items|length }}</td>
+          <td>
+            <span style="font-family:var(--font-head);font-weight:700;color:var(--accent);">${{ "%.2f"|format(o.total_amount) }}</span>
+          </td>
+          <td>
+            {% set s = o.status %}
+            <span class="badge-status {% if s=='Pending' %}badge-pending{% elif s=='Preparing' %}badge-preparing{% elif s=='Out for Delivery' %}badge-delivery{% elif s=='Delivered' %}badge-delivered{% else %}badge-cancelled{% endif %}">{{ s }}</span>
+          </td>
+          <td>
+            <a href="{{ url_for('order_detail', oid=o.order_id) }}" class="btn-edit-sm me-1">
+              <i class="bi bi-eye"></i> View
+            </a>
+            <form method="POST" action="{{ url_for('delete_order', oid=o.order_id) }}" style="display:inline;"
+                  onsubmit="return confirm('Delete order #{{ o.order_id }}?')">
+              <button type="submit" class="btn-danger-sm"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+      <div style="padding:40px;text-align:center;color:var(--muted);">
+        <i class="bi bi-receipt" style="font-size:40px;display:block;margin-bottom:12px;"></i>
+        No orders yet. <a href="{{ url_for('new_order') }}" style="color:var(--accent);">Place the first one!</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

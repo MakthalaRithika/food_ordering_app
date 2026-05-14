@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ action }} Customer{% endblock %}
+{% block page_title %}{{ action }} Customer{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('customers') }}" class="btn-ghost mb-4"><i class="bi bi-arrow-left"></i> Back</a>
+
+<div class="form-card">
+  <h2 style="font-family:var(--font-head);font-size:18px;font-weight:700;margin-bottom:22px;">
+    {{ action }} Customer
+  </h2>
+  <form method="POST">
+    <div class="form-group">
+      <label class="form-label">Full Name *</label>
+      <input type="text" name="name" class="form-control"
+             value="{{ customer.name if customer else '' }}"
+             placeholder="e.g. Rithika Makthala" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email Address *</label>
+      <input type="email" name="email" class="form-control"
+             value="{{ customer.email if customer else '' }}"
+             placeholder="e.g. rithika@mail.com" required>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button type="submit" class="btn-accent"><i class="bi bi-check-lg"></i> {{ action }} Customer</button>
+      <a href="{{ url_for('customers') }}" class="btn-ghost">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

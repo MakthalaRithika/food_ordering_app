@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Order #{{ order.order_id }}{% endblock %}
+{% block page_title %}Order #{{ order.order_id }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('orders') }}" class="btn-ghost mb-4"><i class="bi bi-arrow-left"></i> Back to Orders</a>
+
+<div style="display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;">
+
+  <!-- Order Items -->
+  <div class="card">
+    <div class="card-header"><i class="bi bi-basket-fill me-2"></i>Order Items</div>
+    <div class="card-body p-0">
+      <table class="table-dark-custom">
+        <thead>
+          <tr><th>Item</th><th>Category</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+          {% for oi in order.order_items %}
+          <tr>
+            <td style="font-weight:500;">{{ oi.menu_item.item_name }}</td>
+            <td style="color:var(--muted);">{{ oi.menu_item.category_obj.category_name }}</td>
+            <td>${{ "%.2f"|format(oi.unit_price) }}</td>
+            <td>{{ oi.quantity }}</td>
+            <td>
+              <span style="font-family:var(--font-head);font-weight:700;color:var(--accent);">${{ "%.2f"|format(oi.subtotal) }}</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="4" style="padding:14px 16px;font-weight:600;text-align:right;border-top:2px solid var(--border);">Total</td>
+            <td style="border-top:2px solid var(--border);">
+              <span style="font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--accent);">${{ "%.2f"|format(order.total_amount) }}</span>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Order Info & Status Update -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-info-circle me-2"></i>Order Info</div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;">Customer</div>
+            <a href="{{ url_for('customer_detail', cid=order.customer_id) }}" style="color:var(--accent);text-decoration:none;font-weight:500;">
+              {{ order.customer.name }}
+            </a>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;">Email</div>
+            <div style="color:var(--muted);font-size:13px;">{{ order.customer.email }}</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;">Order Date</div>
+            <div>{{ order.order_date }}</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;">Status</div>
+            {% set s = order.status %}
+            <span class="badge-status {% if s=='Pending' %}badge-pending{% elif s=='Preparing' %}badge-preparing{% elif s=='Out for Delivery' %}badge-delivery{% elif s=='Delivered' %}badge-delivered{% else %}badge-cancelled{% endif %}">{{ s }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="bi bi-arrow-repeat me-2"></i>Update Status</div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('update_order_status', oid=order.order_id) }}">
+          <div class="form-group">
+            <select name="status" class="form-select">
+              {% for st in ['Pending','Preparing','Out for Delivery','Delivered','Cancelled'] %}
+                <option value="{{ st }}" {% if order.status == st %}selected{% endif %}>{{ st }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn-accent" style="width:100%;justify-content:center;">
+            <i class="bi bi-check-lg"></i> Update Status
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('delete_order', oid=order.order_id) }}"
+          onsubmit="return confirm('Permanently delete Order #{{ order.order_id }}?')">
+      <button type="submit" class="btn-danger-sm" style="width:100%;padding:10px;">
+        <i class="bi bi-trash me-1"></i> Delete Order
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

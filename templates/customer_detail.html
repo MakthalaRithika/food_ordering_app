@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ customer.name }}{% endblock %}
+{% block page_title %}Customer Detail{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('customers') }}" class="btn-ghost mb-4"><i class="bi bi-arrow-left"></i> Back to Customers</a>
+
+<div style="display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start;">
+
+  <!-- Profile card -->
+  <div class="card">
+    <div class="card-body" style="text-align:center;">
+      <div style="width:70px;height:70px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-family:var(--font-head);font-size:28px;font-weight:800;color:#fff;">
+        {{ customer.name[0] }}
+      </div>
+      <h2 style="font-family:var(--font-head);font-size:20px;font-weight:700;">{{ customer.name }}</h2>
+      <p style="color:var(--muted);margin:4px 0 16px;">{{ customer.email }}</p>
+      <div style="font-size:12px;color:var(--muted);">Member since {{ customer.date_created }}</div>
+      <hr style="border-color:var(--border);margin:16px 0;">
+      <div style="display:flex;justify-content:center;gap:24px;">
+        <div>
+          <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--accent);">{{ customer.orders|length }}</div>
+          <div style="font-size:11px;color:var(--muted);">Orders</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:16px;">
+        <a href="{{ url_for('edit_customer', cid=customer.customer_id) }}" class="btn-ghost" style="flex:1;justify-content:center;">
+          <i class="bi bi-pencil"></i> Edit
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders table -->
+  <div class="card">
+    <div class="card-header"><i class="bi bi-receipt-cutoff me-2"></i>Order History</div>
+    <div class="card-body p-0">
+      {% if customer.orders %}
+      <table class="table-dark-custom">
+        <thead>
+          <tr><th>Order #</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for o in customer.orders|sort(attribute='order_date', reverse=True) %}
+          <tr>
+            <td><a href="{{ url_for('order_detail', oid=o.order_id) }}" style="color:var(--accent);text-decoration:none;">#{{ o.order_id }}</a></td>
+            <td>{{ o.order_date }}</td>
+            <td>{{ o.order_items|length }}</td>
+            <td>${{ "%.2f"|format(o.total_amount) }}</td>
+            <td>
+              {% set s = o.status %}
+              <span class="badge-status {% if s=='Pending' %}badge-pending{% elif s=='Preparing' %}badge-preparing{% elif s=='Out for Delivery' %}badge-delivery{% elif s=='Delivered' %}badge-delivered{% else %}badge-cancelled{% endif %}">{{ s }}</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <div style="padding:30px;text-align:center;color:var(--muted);">No orders placed yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

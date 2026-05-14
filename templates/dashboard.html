@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block topbar_action %}
+  <a href="{{ url_for('new_order') }}" class="btn-accent">
+    <i class="bi bi-plus-lg"></i> New Order
+  </a>
+{% endblock %}
+
+{% block content %}
+
+<!-- STAT CARDS -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+    <div class="stat-label">Customers</div>
+    <div class="stat-value">{{ total_customers }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="bi bi-receipt-cutoff"></i></div>
+    <div class="stat-label">Total Orders</div>
+    <div class="stat-value">{{ total_orders }}</div>
+    <div class="stat-sub">{{ pending_orders }} pending · {{ delivered_orders }} delivered</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="bi bi-journal-richtext"></i></div>
+    <div class="stat-label">Menu Items</div>
+    <div class="stat-value">{{ total_menu }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+    <div class="stat-label">Total Revenue</div>
+    <div class="stat-value">${{ "%.2f"|format(total_revenue) }}</div>
+    <div class="stat-sub">avg ${{ "%.2f"|format(avg_order) }} / order</div>
+  </div>
+</div>
+
+<div class="dash-grid">
+  <!-- Recent Orders -->
+  <div class="card">
+    <div class="card-header"><i class="bi bi-clock-history me-2"></i>Recent Orders</div>
+    <div class="card-body p-0">
+      {% if recent_orders %}
+      <table class="table-dark-custom" style="width:100%">
+        <thead>
+          <tr>
+            <th>#</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for o in recent_orders %}
+          <tr>
+            <td><a href="{{ url_for('order_detail', oid=o.order_id) }}" style="color:var(--accent);text-decoration:none;">#{{ o.order_id }}</a></td>
+            <td>{{ o.customer.name }}</td>
+            <td>{{ o.order_date }}</td>
+            <td>${{ "%.2f"|format(o.total_amount) }}</td>
+            <td>
+              {% set s = o.status %}
+              <span class="badge-status {% if s=='Pending' %}badge-pending{% elif s=='Preparing' %}badge-preparing{% elif s=='Out for Delivery' %}badge-delivery{% elif s=='Delivered' %}badge-delivered{% else %}badge-cancelled{% endif %}">
+                {{ s }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p style="color:var(--muted);padding:20px;">No orders yet. <a href="{{ url_for('new_order') }}" style="color:var(--accent);">Place one!</a></p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Top Menu Items -->
+  <div class="card">
+    <div class="card-header"><i class="bi bi-trophy-fill me-2"></i>Top Selling Items</div>
+    <div class="card-body">
+      {% if top_items %}
+        {% for item in top_items %}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);">
+          <span>{{ item.item_name }}</span>
+          <span style="font-family:var(--font-head);font-weight:700;color:var(--accent);">{{ item.total_sold }} sold</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:var(--muted);">No sales data yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
